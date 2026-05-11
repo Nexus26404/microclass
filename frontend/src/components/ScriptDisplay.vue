@@ -16,7 +16,7 @@ function startEdit(sectionId: string, content: string) {
 }
 
 function saveEdit() {
-  if (editingSection.value) {
+  if (editingSection.value && props.script) {
     const section = props.script.sections.find(s => s.id === editingSection.value)
     if (section) {
       section.content = editContent.value

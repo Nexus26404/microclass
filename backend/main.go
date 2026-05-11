@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/gin-gonic/gin"
@@ -44,6 +46,21 @@ func main() {
 			return
 		}
 		c.Next()
+	})
+
+	// 静态资源（前端 build 产物），非 /api 路径才处理
+	r.NoRoute(func(c *gin.Context) {
+		if strings.HasPrefix(c.Request.URL.Path, "/api") {
+			c.AbortWithStatus(404)
+			return
+		}
+		// 尝试找到实际文件，找不到则返回 index.html（SPA fallback）
+		filePath := "./dist" + c.Request.URL.Path
+		if _, err := os.Stat(filePath); os.IsNotExist(err) {
+			c.File("./dist/index.html")
+		} else {
+			c.File(filePath)
+		}
 	})
 
 	api := r.Group("/api")
